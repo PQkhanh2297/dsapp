@@ -3767,7 +3767,7 @@ function drawCover(g,im,x,y,w,h){
 }
 /* Tạo ảnh gửi Zalo: chữ thông tin bên trái, 1-2 ảnh đồ bên phải */
 async function taoAnhZalo(p, ten){
-  const W=960, H=540, LW=440;
+  const W=1080, H=540, LW=560;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const g=c.getContext('2d');
   g.fillStyle='#111827'; g.fillRect(0,0,W,H);
@@ -3780,9 +3780,13 @@ async function taoAnhZalo(p, ten){
   g.font='bold 32px Arial'; line(cut((p.ma?p.ma+' · ':'')+(ten||p.ten||'Khách'),LW-52),'bold 32px Arial');
   line([p.sdt,CO[p.co].replace('Cơ sở ','')].filter(Boolean).join(' · '),'24px Arial','#9ca3af');
   y+=8; line('Dịch vụ:','bold 24px Arial','#f472b6');
-  const gr=[]; (p.items||[]).forEach(i=>{ const k=(i.ten||'')+'|'+(i.nv||''); const f=gr.find(x=>x.k===k); if(f) f.n++; else gr.push({k,ten:i.ten||'',nv:i.nv||'',n:1}); });
+  const gr=[]; (p.items||[]).forEach(i=>{ const k=(i.ten||'')+'|'+(i.nv||''); const f=gr.find(x=>x.k===k); if(f){ f.n++; f.tien+=Number(i.gia||0); } else gr.push({k,ten:i.ten||'',nv:i.nv||'',n:1,tien:Number(i.gia||0)}); });
   const maxL=gr.length>7?6:7;
-  gr.slice(0,maxL).forEach(x=>{ g.font='24px Arial'; line(cut('• '+x.ten+(x.n>1?' ×'+x.n:'')+(x.nv?' · '+x.nv:''),LW-52),'24px Arial'); });
+  gr.slice(0,maxL).forEach(x=>{
+    g.font='bold 24px Arial'; const tt=fmt(x.tien)+'đ', tw=g.measureText(tt).width;
+    g.fillStyle='#fbbf24'; g.textAlign='right'; g.fillText(tt, LW-24, y); g.textAlign='left';
+    g.font='24px Arial'; line(cut('• '+x.ten+(x.n>1?' ×'+x.n:'')+(x.nv?' · '+x.nv:''),LW-28-24-tw-14),'24px Arial');
+  });
   if(gr.length>maxL) line('… +'+(gr.length-maxL)+' việc khác','22px Arial','#9ca3af');
   y+=8; line('Tổng: '+fmt(tongPhieu(p))+'đ','bold 30px Arial','#fbbf24');
   if(p.ma) line('Hẹn trả: '+ddmm(henCua(p)),'24px Arial','#9ca3af');
