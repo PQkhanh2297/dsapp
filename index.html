@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DS App</title>
-</head>
-<body>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Đồ Hiệu Tử Tế</title><meta name="theme-color" content="#0e1117">
+<style>html,body{margin:0;height:100%;background:#0e1117;color:#9ca3af;font:16px -apple-system,system-ui,sans-serif}#m{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;padding:20px;box-sizing:border-box}button{margin-top:14px;padding:12px 20px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-size:16px}</style>
+</head><body><div id="m">Đang mở app Đồ Hiệu Tử Tế...</div>
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5o2rab_Npk8KMu7zldYrHuhsmWc3ZQiQPe1GkXOs-26pBMPo6QdqNNJWaBvcNCYDI4Q/exec';
-fetch(SCRIPT_URL, { cache: 'no-store' })
-  .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-  .then(html => { document.open(); document.write(html); document.close(); })
-  .catch(e => { document.body.innerHTML = '<p>Không tải được app: ' + e.message + '</p>'; });
-</script>
-</body>
-</html>
+(function(){
+  var U='https://script.google.com/macros/s/AKfycbwAqmdkL7pdhWd71s5p0AVhJuZeSVb-GooIdpT4cqV62c5nsvLXmFU4rwtqlY9_g7a5/exec?page=app';
+  var K='dsapp-v1', done=false;
+  function show(h){ if(done) return; done=true; document.open(); document.write(h); document.close(); }
+  function getCache(){ try{ return caches.open(K).then(function(c){ return c.match('app'); }).then(function(r){ return r?r.text():null; }); }catch(e){ return Promise.resolve(null); } }
+  function putCache(h){ try{ caches.open(K).then(function(c){ c.put('app', new Response(h,{headers:{'Content-Type':'text/html'}})); }); }catch(e){} }
+  function fail(){ document.getElementById('m').innerHTML='Không tải được app. Kiểm tra mạng rồi thử lại.<br><button onclick="location.reload()">Thử lại</button>'; }
+  var net=fetch(U,{cache:'no-store'}).then(function(r){ return r.ok?r.text():null; }).then(function(h){ if(h&&h.length>10000){ putCache(h); return h; } return null; }).catch(function(){ return null; });
+  var timer=new Promise(function(r){ setTimeout(function(){ r('__timeout'); },6000); });
+  Promise.race([net,timer]).then(function(h){
+    if(h && h!=='__timeout') return show(h);
+    getCache().then(function(c){ if(c) show(c); else net.then(function(h2){ h2?show(h2):fail(); }); });
+  });
+})();
+</script></body></html>
